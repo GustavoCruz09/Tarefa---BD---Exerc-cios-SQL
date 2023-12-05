@@ -322,11 +322,15 @@ WHERE c.idEmpresa = e.id and v.idCarro = c.id
 GROUP BY e.nome
 ORDER BY mediaDist DESC
 
-SELECT e.nome, MAX(v.distanciaPercorrida) as DistanciaPercorrida
-FROM empresa e, viagem v, carro c  
-WHERE c.idEmpresa = e.id and v.idCarro = c.id
-GROUP BY e.nome
-Order By DistanciaPercorrida DESC
+select e.nome
+FROM empresa e, viagem v, carro c
+where e.id = c.idEmpresa and c.id = v.idCarro
+      and v.distanciaPercorrida in
+    (
+        select max(v.distanciaPercorrida)
+        FROM empresa e, viagem v, carro c
+        where e.id = c.idEmpresa and c.id = v.idCarro
+    )
 
 SELECT e.nome, COUNT(c.id) as QuantidadeCarro
 FROM empresa e, carro c
@@ -350,4 +354,12 @@ Where c.id = v.idCarro and e.id = c.idEmpresa
 GROUP By c.modelo, e.nome
 ORDER BY qtdViagens DESC, e.nome ASC
 
-
+SELECT e.nome, c.marca, c.modelo, v.distanciaPercorrida,
+	CASE
+		WHEN v.distanciaPercorrida < 1000 THEN
+			v.distanciaPercorrida * 10
+		ELSE
+			v.distanciaPercorrida * 15
+	END as Preco
+FROM empresa e, viagem v, carro c  
+WHERE c.idEmpresa = e.id and v.idCarro = c.id
